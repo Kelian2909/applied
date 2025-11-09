@@ -39,6 +39,34 @@ L’objectif est de **prédire la probabilité de réadmission d’un patient di
 
 ## 2. Sélection de variables (à venir)
 
+### 2.1. Information mutuelle
+
+L’**information mutuelle** mesure la **dépendance statistique** entre une variable explicative `X` et la cible `Y`.  
+Elle indique **combien d’information sur `Y` est contenue dans `X`**.  
+Si `X` et `Y` sont indépendantes, elle est nulle.
+
+C’est un **cas particulier généralisé du coefficient de corrélation** :  
+- la corrélation de Pearson ne capture que les **relations linéaires**,  
+- l’information mutuelle détecte **toutes les dépendances**, linéaires ou non.
+
+#### Formule
+\[
+I(X;Y) = \sum_{x,y} p(x,y) \, \log \frac{p(x,y)}{p(x)p(y)}
+\]
+- `p(x, y)` : probabilité jointe  
+- `p(x)`, `p(y)` : probabilités marginales  
+- `I(X;Y) ≥ 0` et `I(X;Y) = 0` si indépendance
+
+#### Interprétation
+| Cas | Interprétation |
+|------|----------------|
+| `I(X;Y)=0` | X et Y indépendantes |
+| `I(X;Y)>0` | X apporte de l’information sur Y |
+| Score élevé | Variable pertinente |
+
+
+
+
 - Méthodes filtre : variance, corrélation, `SelectKBest`.
 - Méthodes embedded : `RandomForest`, `LogisticRegression (L1)`.
 - Méthodes wrapper : `RFE`, `Boruta`, `SequentialFeatureSelector`.
