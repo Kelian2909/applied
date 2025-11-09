@@ -63,9 +63,7 @@ Si `X` et `Y` sont indépendantes, elle est nulle.
 
 Contrairement à la corrélation linéaire (Pearson), l’information mutuelle capte **toutes les formes de dépendance** — linéaires ou non linéaires.
 
-\[
-I(X;Y) = \sum_{x,y} p(x,y) \, \log \frac{p(x,y)}{p(x)p(y)}
-\]
+`I(X;Y) = Σₓ,ᵧ p(x,y) * log( p(x,y) / [p(x) * p(y)] )`
 
 - `p(x, y)` : probabilité jointe  
 - `p(x)` et `p(y)` : probabilités marginales  
@@ -83,9 +81,8 @@ la sélection de variables est effectuée **pendant** l’entraînement du modè
 
 Le principe repose sur l’ajout d’une **pénalisation absolue** sur les coefficients du modèle :
 
-\[
-\text{min} \; \|y - X\beta\|^2 + \lambda \sum_i |\beta_i|
-\]
+`minimize ||y - Xβ||² + λ Σ |βᵢ|`
+
 
 Sous l’effet du paramètre de régularisation `λ`, certains coefficients `βᵢ` deviennent **exactement nuls**, ce qui équivaut à **éliminer la variable correspondante**.  
 
@@ -125,9 +122,8 @@ Chaque méthode fournit une **mesure complémentaire de la pertinence** des vari
 
 Pour obtenir une vision plus équilibrée, les trois scores ont été **normalisés entre 0 et 1** puis combinés en un **score global pondéré** :
 
-\[
-\text{Score}_{global} = 0.4 \times \text{IM} + 0.3 \times \text{Lasso} + 0.3 \times \text{XGBoost}
-\]
+`Score_global = 0.4 × IM + 0.3 × Lasso + 0.3 × XGBoost`
+
 
 Les poids ont été choisis pour donner une **légère priorité à la robustesse statistique (IM)**, tout en intégrant la **sélection structurelle (Lasso)** et la **non-linéarité (XGBoost)**.
 
