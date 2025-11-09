@@ -2,7 +2,7 @@
 
 > Prédiction de la réadmission hospitalière de patients diabétiques à partir de données cliniques (UCI Machine Learning Repository)
 
----
+
 
 ## Description du projet
 
@@ -10,7 +10,7 @@ Ce projet s’appuie sur le jeu de données **[Diabetes 130-US hospitals for yea
 
 L’objectif est de **prédire la probabilité de réadmission d’un patient diabétique dans les 30 jours** suivant une hospitalisation, à partir d’informations démographiques, médicales et administratives.
 
----
+
 
 ## Objectifs
 
@@ -19,7 +19,7 @@ L’objectif est de **prédire la probabilité de réadmission d’un patient di
 - .....
 
 
----
+
 
 ##  Étapes du projet
 
@@ -35,25 +35,25 @@ L’objectif est de **prédire la probabilité de réadmission d’un patient di
 - Construction d’un pipeline (`ColumnTransformer`) combinant toutes les transformations.
 - Création de la variable cible binaire : `y = 1 si readmitted == "<30", sinon 0`.
 
----
+
 
 ## 2. Sélection de variables
 
-### 2.1. Détermination du nombre optimal de variables par validation croisée
+### 2.1. Détermination du nombre optimal de variables par cross validation
 
-Avant de procéder à la sélection proprement dite, il est essentiel de déterminer **combien de variables** il est pertinent de conserver.  
-Pour cela, une **validation croisée (cross-validation)** a été réalisée à l’aide d’un modèle de **régression logistique**.
+Avant de procéder à la sélection, il est essentiel de déterminer **combien de variables** il est pertinent de conserver.  
+Pour cela, une **cross-validation** a été réalisée à l’aide d’un modèle de **régression logistique**.
 
 Le principe consiste à :
-- Sélectionner un nombre de variables `k` selon un critère donné (ex. Information Mutuelle),
+- Sélectionner un nombre de variables `k` selon un critère donné,
 - Évaluer la performance du modèle (AUC) via une **Stratified K-Fold Cross-Validation**,
 - Répéter l’opération pour différentes valeurs de `k`,
 - Retenir le **nombre minimal de variables** donnant la **meilleure performance moyenne**.
 
-Cette étape permet d’éviter la **sur-sélection** (trop de variables inutiles) tout en maximisant la **capacité prédictive** du modèle final.  
+Cette étape permet d’éviter la **sur-sélection** tout en maximisant la **capacité prédictive** du modèle final.  
 C’est une approche empirique, mais robuste, qui garantit un bon compromis entre **complexité** et **performance**.
 
----
+
 
 ### 2.2. Méthode 1 — Information Mutuelle (IM)
 
@@ -75,7 +75,6 @@ L’IM est une **méthode de type filtre** :
 chaque variable est évaluée indépendamment du modèle, ce qui la rend rapide et générique.  
 Elle permet d’identifier les variables **informativement pertinentes**, sans a priori sur la nature de la relation.
 
----
 
 ### 2.3. Méthode 2 — Régression Lasso (L1)
 
@@ -95,11 +94,11 @@ Avantages :
 - Réduction du sur-apprentissage,  
 - Maintien d’une bonne interprétabilité du modèle linéaire.
 
-Le Lasso est particulièrement adapté lorsque plusieurs variables sont corrélées : il conserve celles qui apportent le plus d’information unique sur la cible.
 
----
 
-### 2.4. Méthode 3 — XGBoost (Feature Importance)
+
+
+### 2.4. Méthode 3 — XGBoost 
 
 Le modèle **XGBoost (Extreme Gradient Boosting)** est une méthode **arborescente** et **itérative** fondée sur le gradient boosting.  
 Il combine de nombreux arbres de décision faibles pour construire un modèle global puissant.
@@ -116,7 +115,6 @@ Avantages :
 - Très robuste aux données bruitées ou corrélées,  
 - Excellente performance empirique.
 
----
 
 ### 2.5. Pondération et agrégation des scores
 
@@ -135,31 +133,7 @@ Les poids ont été choisis pour donner une **légère priorité à la robustess
 
 Les variables présentant le plus haut score global ont été retenues pour constituer la base finale du modèle prédictif.
 
----
 
-### 2.6. Bénéfices de l’approche combinée
 
-Cette approche en trois étapes permet de :
-- **Réduire la dimensionnalité** du jeu de données,  
-- **Limiter la multicolinéarité**,  
-- **Renforcer la stabilité** des variables retenues,  
-- Et **combiner la rigueur statistique** (IM, Lasso) à la **puissance prédictive** des modèles non linéaires (XGBoost).
-
-Ainsi, la sélection finale intègre à la fois :
-- les dépendances statistiques pures,  
-- les relations linéaires directes,  
-- et les effets non linéaires complexes,  
-
-assurant une description complète et robuste des variables les plus déterminantes.
-
----
-
-### 2.7. Visualisation et interprétation
-
-Les variables les mieux classées selon le score global sont visualisées sous forme d’un **bar chart horizontal**.  
-La couleur orange met en évidence les **25 variables les plus pertinentes** retenues pour l’apprentissage final.  
-Cette représentation permet d’évaluer d’un coup d’œil la contribution relative de chaque variable et d’identifier les dimensions les plus influentes du modèle.
-
----
 
 
