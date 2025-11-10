@@ -131,5 +131,110 @@ Les variables présentant le plus haut score global ont été retenues pour cons
 
 
 
+## 3. Modélisation et évaluation
+
+### 3.1. Méthodologie d’évaluation
+
+La variable cible `readmitted` étant fortement **déséquilibrée** (~11 % de réadmissions), le critère principal choisi est la **PR-AUC (Precision–Recall Area Under Curve)**.  
+Cette métrique évalue la capacité du modèle à **identifier les patients réadmis** (rappel) tout en **limitant les fausses alertes** (précision).  
+Elle est plus adaptée qu’une ROC-AUC dans le cas d’un déséquilibre important entre classes.
+
+Critères utilisés :
+- **PR-AUC** : métrique principale.  
+- **ROC-AUC** : performance globale de classement.  
+- **F1-score** : compromis précision / rappel au seuil optimal.  
+- **Brier Score** : mesure de calibration des probabilités.  
+- **Recall@Top 20 %** : taux de vrais positifs dans les 20 % des patients les plus à risque.
+
+Les données sont séparées en **80 % train / 20 % test** (stratifié).  
+Tous les prétraitements (scaling, encodage, sélection de variables) sont inclus dans un **pipeline scikit-learn**, assurant l’absence de fuite de données.
+
+---
+
+### 3.2. Modèle interprétable — Régression Logistique L1 (Lasso)
+
+Le modèle **Logistic Regression L1** a été choisi pour sa **transparence** et sa capacité à **sélectionner automatiquement les variables pertinentes**.  
+Il constitue une première approche interprétable et robuste.
+
+**Paramètres principaux :**
+```python
+LogisticRegression(
+    penalty="l1",
+    solver="liblinear",
+    class_weight="balanced",
+    max_iter=200,
+    random_state=42
+)
+
+### 3.2. Validation croisée
+
+**Méthodologie :**
+- **5 folds** : `StratifiedKFold`
+- **Scoring** : `{"pr_auc": "average_precision", "roc_auc": "roc_auc"}`
+
+**Résultats (validation moyenne ± écart-type)** :
+
+| Modèle      | PR-AUC (± std) | ROC-AUC (± std) |
+|--------------|----------------|-----------------|
+| LogReg L1 | 0.197 ± 0.005 | 0.638 ± 0.007 |
+| LogReg L2 | 0.197 ± 0.005 | 0.638 ± 0.007 |
+
+> ✅ **LogReg L1** retenue pour son caractère parcimonieux et interprétable.
+
+---
+
+### 3.3. Résultats sur jeu de test
+
+| Métrique | Score |
+|-----------|--------|
+| **PR-AUC** | 0.193 |
+| **ROC-AUC** | 0.633 |
+| **F1-score (seuil = 0.49)** | 0.253 |
+| **Recall (classe 1)** | 0.529 |
+| **Precision (classe 1)** | 0.166 |
+| **Brier Score** | 0.232 |
+
+Le seuil a été déterminé en **maximisant le F1-score**.  
+Le modèle identifie environ **53 % des patients réadmis**, au prix d’un taux modéré de faux positifs — un compromis acceptable en contexte médical.
+
+---
+
+### 3.4. Calibration
+
+Le **Brier score (0.232)** montre une **calibration moyenne** :  
+le modèle tend à **sous-estimer les risques** pour les patients à forte probabilité de réadmission.  
+La **courbe de calibration** reste globalement cohérente avec la diagonale idéale.
+
+<p align="center">
+  <img src="outputs/calibration_curve_logreg_l1.png" width="480">
+</p>
+
+---
+
+### 3.5. Interprétation du modèle
+
+Les coefficients de la **régression logistique L1** permettent une lecture directe de l’influence de chaque variable :
+
+- **β > 0** → la variable **augmente** la probabilité de réadmission.  
+- **β < 0** → la variable **réduit** la probabilité de réadmission.  
+- **exp(β)** = *odds ratio (OR)* : impact multiplicatif sur les chances de réadmission.
+
+**Exemples d’interprétation :**
+
+| Variable | β | OR | Interprétation |
+|-----------|---|----|----------------|
+| `time_in_hospital` | +0.42 | 1.52 | Les séjours plus longs augmentent le risque de réadmission. |
+| `num_lab_procedures` | +0.27 | 1.31 | Un nombre élevé d’examens traduit une pathologie plus lourde. |
+| `age_[0-30)` | −0.68 | 0.51 | Les patients jeunes présentent un risque plus faible de réadmission. |
+
+---
+
+### 3.6. Perspectives
+
+- 🔹 Tester des modèles **ensemblistes** (*Random Forest*, *XGBoost*) et un **réseau de neurones (MLP)** pour mesurer le gain lié aux non-linéarités.  
+- 🔹 Améliorer la **calibration** via *Platt Scaling* ou *Isotonic Regression*.  
+- 🔹 Intégrer un **coût clinique différencié** pour ajuster le seuil selon le risque acceptable de faux positifs.  
+- 🔹 Déployer un **score de risque interprétable** via un tableau de bord (*SHAP*, *Streamlit*, ou *Gradio*) permettant une visualisation claire des facteurs de risque individuels.
+
 
 
