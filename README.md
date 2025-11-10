@@ -165,7 +165,7 @@ LogisticRegression(
     max_iter=200,
     random_state=42
 )
-
+---
 ### 3.2. Validation croisée
 
 **Méthodologie :**
