@@ -1,6 +1,4 @@
 
-# Environnement compatible Python >= 3.10
-
 numpy==1.26.4
 pandas==2.2.2
 ucimlrepo==0.0.7
@@ -14,6 +12,7 @@ notebook==7.2.1
 ipykernel==6.29.5
 matplotlib-venn==0.11.9
 catboost==1.2
-lightgbm
+lightgbm==4.5.0
+
 tensorflow==2.14.0
-tf_tabnet==1.6.0
+torch==2.2.0

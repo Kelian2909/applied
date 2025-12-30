@@ -1,7 +1,2 @@
+.venv/
 venv/
-env/
-__pycache__/
-*.pyc
-*.pyo
-*.DS_Store
-Miniconda3-latest-MacOSX-x86_64.sh
